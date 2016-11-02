@@ -5,4 +5,7 @@ This is just a small script that pulls the match data form the csgolounge.com AP
 
 In the API file, some data is incomplete or mixed up, my script removes all these matches and outputs the rest.
 
+HOW TO USE:
+Run the apiScraper file, this will output 2 files: rawData.txt and matchData.txt
+
 What you do with this is your own responsibility, I accept no repsonsibility for your actions with this code.
