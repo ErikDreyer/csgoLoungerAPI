@@ -25,10 +25,9 @@ def main():
         currentLine = line.decode("utf-8")
         try:           
             if currentLine[10:13] == '"a"' and currentLine.find('when') != -1:    
-                outputFile.write('\n' + currentLine)
+                outputFile.write(currentLine + '\n')
                 Counter += 1
         except:
-            print ('pass')
             pass
 
     outputFile.close()

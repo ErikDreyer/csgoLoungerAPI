@@ -68,7 +68,7 @@ def parseAPI():
         match = match[match.find('when') + 7:]
         date = match[:10]
 
-        output = 'ID:' +  ID + ' Date:' + date + ' Team A:'+ teamA + ' Team B:'+ teamB + ' Winner:'+ winner + ' Closed:' + str(closed) + ' Event:' + event   
+        output = 'ID:' +  ID + ' Date:' + date + ' Time:' + time + ' Team A:'+ teamA + ' Team B:'+ teamB + ' Winner:'+ winner  + ' Event:' + event + ' Closed:' + str(closed) + '\n'  
         outputFile.write(output)
         
     inputFile.close()
