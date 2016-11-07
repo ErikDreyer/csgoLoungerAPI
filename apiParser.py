@@ -1,79 +1,109 @@
+import apiSQL
+
+class Match:
+    "parse the data of a match from a line out of the matchData file"
+
+    def __init__(self, matchID, date, time, teamA, teamB, winner, closed, event, form):
+        self.matchID = matchID
+        self.date = date
+        self.time = time
+        self.teamA = teamA
+        self.teamB = teamB
+        self.winner = winner
+        self.closed = closed
+        self.event = event
+        self.form = form
+
+    def matchToStr(self):
+        matchData = 'ID: ' + self.matchID + ' Date: ' + self.date + ' ' + self.time + ' Team A: ' + self.teamA + ' Team B: ' + self.teamB + ' Winner: ' + self.winner + ' Event: ' + self.event + ' Closed: ' + str(self.closed)
+        return matchData
+
+
 def parseAPI():
 
-    print ('Starting api parser')
-    
-    inputFileName = 'rawData.txt'
-    outputFileName = 'matchData.txt'
-    inputFile = open(inputFileName, "r")
+    print ('> Starting api parser...')
+    inputFileName = 'matchData.txt'
+    inputFile = open(inputFileName , "r")
+    outputFileName = 'matches.txt'
     outputFile = open(outputFileName, "w")
-    
-    Counter = 0
+    settingsFileName = 'settings.txt'
+    settingsFile = open(settingsFileName, "r+")
 
-    with inputFile as f:
-        matches = f.readlines()
+    matches = inputFile.readlines()
 
     for match in matches:
-        #get time of match
-        time = match[:8]
+        match = match[match.find('"match"') + 9:]
+        matchID = match[:match.find('"')]
 
-        #get teamA of match
-        tagPos = match.find('"a"')
-        match = match[tagPos + 4:]
-        commaPos = match.find(',')
-        teamA = match[:commaPos]
+        #date and time
+        match = match[match.find('"when"') + 8:]
+        date = match[:11]
+        time = match[11: match.find('"')]
 
-        #get teamB of match
-        tagPos = match.find('"b"')
-        match = match[tagPos + 4:]
-        commaPos = match.find(',')
-        teamB = match[:commaPos]
+        #team A
+        match = match[match.find('"a"') + 5:]
+        teamA = match[:match.find('"')]
 
-        #get winner of match
-        tagPos = match.find('"winner"')
-        match = match[tagPos + 9:]
-        commaPos = match.find(',')
-        winner = match[1:commaPos-1]
+        #team B
+        match = match[match.find('"b"') + 5:]
+        teamB = match[:match.find('"')]
+
+        #winner
+        match = match[match.find('"winner"') + 10:]
+        winner = match[:match.find('"')]
 
         if winner == 'a':
             winner = teamA
         if winner == 'b':
             winner = teamB
         if winner == 'c':
-            winner = 'Draw'
+            winner = 'draw'
 
-        #get closed value of match
-        tagPos = match.find('"closed"')
-        match = match[tagPos + 9:]
-        commaPos = match.find(',')
-        closed = match[1:commaPos-1]
+        #closed
+        match = match[match.find('"closed"') + 10:]
+        closed = match[:match.find('"')]
 
         if closed == '1':
-            closed = True
+            closed = 'TRUE'
         if closed == '0':
-            closed = False
-            
-        #get event name of match
-        tagPos = match.find('"event"')
-        match = match[tagPos + 8:]
-        commaPos = match.find(',')
-        event = match[:commaPos]
+            closed = 'TRUE'
 
-        #get match ID
-        tagPos = match.find('"match"')
-        match = match[tagPos + 8:]
-        commaPos = match.find(',')
-        ID = match[1:commaPos-1]
-        
-        #get date
-        match = match[match.find('when') + 7:]
-        date = match[:10]
+        #event
+        match = match[match.find('"event"') + 9:]
+        event = match[:match.find('"')]
 
-        output = 'ID:' +  ID + ' Date:' + date + ' Time:' + time + ' Team A:'+ teamA + ' Team B:'+ teamB + ' Winner:'+ winner  + ' Event:' + event + ' Closed:' + str(closed) + '\n'  
-        outputFile.write(output)
+        #form
+        match  = match[match.find('"format"') + 10:]
+        form = match[:match.find('"')]
+
+        objMatch = Match(matchID, date, time, teamA, teamB, winner, closed, event, form)
+
+        outputFile.write(objMatch.matchToStr() + '\n')
+
+
+    previousMatch = settingsFile.readline()
+    runSQL = False
+    
+    
+    if int(previousMatch) < int(objMatch.matchID):
+        settingsFile.seek(0)
+        settingsFile.write(objMatch.matchID)
+        runSQL = True
+    else:
+        runSQL = False
+        print (previousMatch, objMatch.matchID)
         
     inputFile.close()
     outputFile.close()
-    print ('Raw match data parsed to textFile:', outputFileName)
+    settingsFile.close()
+    print ('> Raw match data parsed to textFile:', outputFileName)
+
+    if runSQL == True:
+        print ("> SQL database not up to date, updating...")
+        apiSQL.main()
+    else:
+        print("> SQL database up to date, quitting")
 
 if __name__ == '__main__':
     parseAPI()
+
