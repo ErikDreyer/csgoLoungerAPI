@@ -36,7 +36,7 @@ def main():
 	
 	try:
 		SQLhost = "127.0.0.1"
-		conn = pymysql.connect(host=SQLhost, port=3306, user="admin", passwd="erik1998", db="csgoData")
+		conn = pymysql.connect(host=SQLhost, port=3306, user="admin", passwd="", db="csgoData")
 		print ("> Connection to database successful...")
 	except:
 		print("> Connection failed, quitting")
