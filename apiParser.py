@@ -1,109 +1,91 @@
+#!/usr/bin/env python3
 import apiSQL
 
-class Match:
-    "parse the data of a match from a line out of the matchData file"
 
-    def __init__(self, matchID, date, time, teamA, teamB, winner, closed, event, form):
-        self.matchID = matchID
+class Match:
+    """parse the data of a match from a line out of the matchData file"""
+
+    def __init__(self, match_id, date, time, team_a, team_b, winner, closed, event):
+        self.match_id = match_id
         self.date = date
         self.time = time
-        self.teamA = teamA
-        self.teamB = teamB
+        self.team_a = team_a
+        self.team_b = team_b
         self.winner = winner
         self.closed = closed
         self.event = event
-        self.form = form
 
-    def matchToStr(self):
-        matchData = 'ID: ' + self.matchID + ' Date: ' + self.date + ' ' + self.time + ' Team A: ' + self.teamA + ' Team B: ' + self.teamB + ' Winner: ' + self.winner + ' Event: ' + self.event + ' Closed: ' + str(self.closed)
-        return matchData
+    def match_to_str(self):
+        match_data = 'ID: ' + self.match_id + ' Date: ' + self.date + ' ' + self.time + ' Team A: ' + self.team_a + ' Team B: ' + self.team_b + ' Winner: ' + self.winner + ' Event: ' + self.event + ' Closed: ' + str(self.closed)
+        return match_data
 
 
-def parseAPI():
+def parse_api():
 
-    print ('> Starting api parser...')
-    inputFileName = 'matchData.txt'
-    inputFile = open(inputFileName , "r")
-    outputFileName = 'matches.txt'
-    outputFile = open(outputFileName, "w")
-    settingsFileName = 'settings.txt'
-    settingsFile = open(settingsFileName, "r+")
+    print('> Starting api parser...')
+    input_file_name = 'matchData.txt'
+    input_file = open(input_file_name, "r")
 
-    matches = inputFile.readlines()
+    output_file_name = 'matches.txt'
+    output_file = open(output_file_name, "w")
 
-    for match in matches:
+    settings_file_name = 'settings.txt'
+    settings_file = open(settings_file_name, "r+")
+
+    match_lines = input_file.readlines()
+
+    for match in match_lines:
         match = match[match.find('"match"') + 9:]
-        matchID = match[:match.find('"')]
+        match_id = match[:match.find('"')]
 
-        #date and time
+        # date and time
         match = match[match.find('"when"') + 8:]
         date = match[:11]
         time = match[11: match.find('"')]
 
-        #team A
+        # team A
         match = match[match.find('"a"') + 5:]
-        teamA = match[:match.find('"')]
+        team_a = match[:match.find('"')]
 
-        #team B
+        # team B
         match = match[match.find('"b"') + 5:]
-        teamB = match[:match.find('"')]
+        team_b = match[:match.find('"')]
 
-        #winner
+        # winner
         match = match[match.find('"winner"') + 10:]
         winner = match[:match.find('"')]
 
         if winner == 'a':
-            winner = teamA
+            winner = team_a
         if winner == 'b':
-            winner = teamB
+            winner = team_b
         if winner == 'c':
             winner = 'draw'
 
-        #closed
+        # closed
         match = match[match.find('"closed"') + 10:]
         closed = match[:match.find('"')]
 
         if closed == '1':
             closed = 'TRUE'
         if closed == '0':
-            closed = 'TRUE'
+            closed = 'FALSE'
 
-        #event
+        # event
         match = match[match.find('"event"') + 9:]
         event = match[:match.find('"')]
 
-        #form
-        match  = match[match.find('"format"') + 10:]
-        form = match[:match.find('"')]
+        match = Match(match_id, date, time, team_a, team_b, winner, closed, event)
 
-        objMatch = Match(matchID, date, time, teamA, teamB, winner, closed, event, form)
+        output_file.write(match.match_to_str() + '\n')
 
-        outputFile.write(objMatch.matchToStr() + '\n')
+    input_file.close()
+    output_file.close()
+    settings_file.close()
 
+    print('> Raw match data parsed to textFile:', output_file_name)
 
-    previousMatch = settingsFile.readline()
-    runSQL = False
-    
-    
-    if int(previousMatch) < int(objMatch.matchID):
-        settingsFile.seek(0)
-        settingsFile.write(objMatch.matchID)
-        runSQL = True
-    else:
-        runSQL = False
-        print (previousMatch, objMatch.matchID)
-        
-    inputFile.close()
-    outputFile.close()
-    settingsFile.close()
-    print ('> Raw match data parsed to textFile:', outputFileName)
-
-    if runSQL == True:
-        print ("> SQL database not up to date, updating...")
-        apiSQL.main()
-    else:
-        print("> SQL database up to date, quitting")
+    apiSQL.main()
 
 if __name__ == '__main__':
-    parseAPI()
-
+    parse_api()
