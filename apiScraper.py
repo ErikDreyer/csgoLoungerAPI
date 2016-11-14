@@ -1,53 +1,53 @@
 #!/usr/bin/env python3
 import urllib.request
-from apiParser import parseAPI
+from apiParser import parse_api
+
 
 def main():
 
-    print ('> Starting api scraper...')
+    print('> Starting api scraper...')
     
-    outputFileName = 'rawData.txt'
-    outputFile = open(outputFileName, "w")
-    Counter = 0    
+    output_file_name = 'rawData.txt'
+    output_file = open(output_file_name, "w")
+    counter = 0
 
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 
     url = "https://csgolounge.com/api/matches.php"
-    headers={'User-Agent':user_agent,} 
+    headers = {'User-Agent': user_agent, }
 
-    request=urllib.request.Request(url,None,headers) #The assembled request
+    request = urllib.request.Request(url, None, headers) # The assembled request
     response = urllib.request.urlopen(request)
     data = response.read()
 
-    outputFile.write(data.decode("utf-8"))
+    output_file.write(data.decode("utf-8"))
 
-    outputFile.close()
-    print ('> Match data scrapped to:', outputFileName )
+    output_file.close()
+    print('> Match data scraped to:', output_file_name )
 
-    print ('> Sorting data into seperate matches...')
+    print('> Sorting data into separate matches...')
     
-    inputFileName = 'rawData.txt'
-    outputFileName = 'matchData.txt'
-    inputFile = open(inputFileName, "r")
-    outputFile = open(outputFileName, "w")
-    
+    input_file_name = 'rawData.txt'
+    output_file_name = 'matchData.txt'
+    input_file = open(input_file_name, "r")
+    output_file = open(output_file_name, "w")
 
-    data = inputFile.read()
+    data = input_file.read()
     data = data[1:]
 
     while len(data) > 1:
         match = data[:data.find('}') + 1]
         data = data[data.find('}') + 2:]
-        outputFile.write(match + '\n')         
+        output_file.write(match + '\n')
 
-    outputFile.close()
+    output_file.close()
 
-    print ('> API scrape finished...')
-    parseAPI()
+    print('> API scrape finished...')
+    parse_api()
 
-    print ('> Done!')
+    print('> Done!')
+    input("Press Enter to exit...")
     
-    
-if __name__ == '__main__' :
+if __name__ == '__main__':
     main()
 
